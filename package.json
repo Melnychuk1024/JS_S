@@ -1,0 +1,25 @@
+{
+  "name": "038-food-dist",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "jshint": "^2.12.0"
+  },
+  "devDependencies": {
+    "json-server": "^0.16.3"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Melnychuk1024/JS_S.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Melnychuk1024/JS_S/issues"
+  },
+  "homepage": "https://github.com/Melnychuk1024/JS_S#readme"
+}

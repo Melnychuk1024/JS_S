@@ -32,35 +32,47 @@ class MenuCard {
         this.parent.append(element);
     }
 }
-new MenuCard(
-    "img/tabs/vegy.jpg",
-    "vegy",
-    'Меню "Фитнес"',
-    "Меню 'Фитнес' - это новый подход к приготовлению блюд: больше свежих овощей и фруктов. Продукт активных и здоровых людей. Это абсолютно новый продукт с оптимальной ценой и высоким качеством!",
-    9,
-    '.menu .container',
-    'menu__item'
-).render();
+const getResource = async (url) => {
+    const res = await fetch(url)
 
-new MenuCard(
-    "img/tabs/elite.jpg",
-    "elite",
-    'Меню “Премиум”',
-    "Меню 'Фитнес' - это новый подход к приготовлению блюд: больше свежих овощей и фруктов. Продукт активных и здоровых людей. Это абсолютно новый продукт с оптимальной ценой и высоким качеством!",
-    15,
-    '.menu .container',
-    'menu__item'
-).render();
+    if(!res.ok) {
+        throw new Error(`Не можемо отримати з ${url}, статус: ${res.status}`);
+    }
 
-new MenuCard(
-    "img/tabs/post.jpg",
-    "post",
-    'Меню "Фитнес"',
-    "Меню 'Фитнес' - это новый подход к приготовлению блюд: больше свежих овощей и фруктов. Продукт активных и здоровых людей. Это абсолютно новый продукт с оптимальной ценой и высоким качеством!",
-    16,
-    '.menu .container',
-    'menu__item'
-).render();
+    return await res.json();
+};
+
+// getResource('http://localhost:3000/menu')
+// .then(data => {
+//     data.forEach(({img, alting, title, descr, price}) => {
+//         new MenuCard(img, alting, title, descr, price, '.menu .container').render();
+//     });
+// });
+
+getResource('http://localhost:3000/menu')
+.then(data => createCard(data));
+
+function createCard(data) {
+    data.forEach(({img, alting, title, descr, price}) => {
+        const element = document.createElement('div');
+
+        element.classList.add('menu__item');
+
+        element.innerHTML = `
+            <div class="menu__item">
+            <img src=${img} alt=${alting}>
+            <h3 class="menu__item-subtitle">${title}</h3>
+            <div class="menu__item-descr">${descr}</div>
+            <div class="menu__item-divider"></div>
+            <div class="menu__item-price">
+                <div class="menu__item-cost">Цена:</div>
+                <div class="menu__item-total"><span>${price}</span> грн/день</div>
+            </div>
+        `;
+
+        document.querySelector('.menu .container').append(element);
+    });
+}
 
 //MODAL
 
@@ -118,10 +130,22 @@ const message = {
 };
 
 forms.forEach(item => {
-    postData(item);
+    bindPostData(item);
 });
 
-function postData(form) {
+const postData = async (url, data) => {
+    const res = await fetch(url, {
+        method: "POST",
+        headers: {
+            'Content-type': 'application/json'
+        },
+        body: data
+    });
+
+    return await res.json();
+};
+
+function bindPostData(form) {
     form.addEventListener('submit', (e) => {
         e.preventDefault();
 
@@ -135,21 +159,11 @@ function postData(form) {
 
         const formData = new FormData(form);
 
-        const object = {};
-        formData.forEach(function(value, key){
-            object[key] = value;
-        });
+        const json = JSON.stringify(Object.fromEntries(formData.entries()));
 
         // request.send(formData);
 
-        fetch('server.php', {
-            method: "POST",
-            headers: {
-                'Content-type': 'application/json'
-            },
-            body: JSON.stringify(object)
-        })
-        .then(data => data.text())
+        postData('http://localhost:3000/requests', json)
         .then(data => {
                 console.log(data);
                 showThanksModal(message.success);
@@ -195,4 +209,8 @@ fetch('https://jsonplaceholder.typicode.com/posts', {
     }
 })
     .then(response => response.json())
-    .then(json => console.log(json))
+    // .then(json => console.log(json));
+
+fetch('http://localhost:3000/menu')
+    .then(data => data.json())
+    .then(res => console.log(res));
